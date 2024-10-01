@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Red Pixel Dodger</title>
+	<style>
+		body {
+			margin: 0;
+			padding: 0;
+			background-color: #f0f0f0;
+		}
+		
+        
+
+		#game-canvas {
+			border: 1px solid #ccc;
+		}
+	</style>
+</head>
+<body>
+    <h1>Red thing dodger 3000</h1>
+    <a href="Index.html">Home</a>
+    <a href="kkk.html">Restart</a>
+	<canvas id="game-canvas" width="400" height="400"></canvas>
+	<script>
+		const canvas = document.getElementById('game-canvas');
+		const ctx = canvas.getContext('2d');
+		
+		// Game variables
+		let pixelX = 200;
+		let pixelY = 200;
+		let pixelSpeed = 5;
+		let cubeSpeed = 2;
+		let cubes = [];
+		let score = 0;
+		let gameOver = false;
+		
+		// Game loop
+		function update() {
+			// Clear canvas
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			
+			// Draw pixel
+			ctx.fillStyle = 'red';
+			ctx.fillRect(pixelX, pixelY, 10, 10);
+			
+			// Move pixel
+			if (keysDown['ArrowUp'] && pixelY > 0) {
+				pixelY -= pixelSpeed;
+			}
+			if (keysDown['ArrowDown'] && pixelY < canvas.height - 10) {
+				pixelY += pixelSpeed;
+			}
+			if (keysDown['ArrowLeft'] && pixelX > 0) {
+				pixelX -= pixelSpeed;
+			}
+			if (keysDown['ArrowRight'] && pixelX < canvas.width - 10) {
+				pixelX += pixelSpeed;
+			}
+			
+			// Spawn cubes
+			if (Math.random() < 0.1) {
+				cubes.push({
+					x: Math.random() * canvas.width,
+					y: 0,
+					width: 20,
+					height: 20,
+					speed: cubeSpeed
+				});
+			}
+			
+			// Move cubes
+			for (let i = 0; i < cubes.length; i++) {
+				cubes[i].y += cubes[i].speed;
+				if (cubes[i].y > canvas.height) {
+					cubes.splice(i, 1);
+				}
+			}
+			
+			// Draw cubes
+			for (let i = 0; i < cubes.length; i++) {
+				ctx.fillStyle = 'green';
+				ctx.fillRect(cubes[i].x, cubes[i].y, cubes[i].width, cubes[i].height);
+			}
+			
+			// Check collisions
+			for (let i = 0; i < cubes.length; i++) {
+				if (checkCollision(pixelX, pixelY, 10, 10, cubes[i].x, cubes[i].y, cubes[i].width, cubes[i].height)) {
+					gameOver = true;
+				}
+			}
+			
+			// Draw score
+			ctx.font = '24px Arial';
+			ctx.fillStyle = 'black';
+			ctx.textAlign = 'left';
+			ctx.textBaseline = 'top';
+			ctx.fillText(`Score: ${score}`, 10, 10);
+			
+			// Update game state
+			if (!gameOver) {
+				score++;
+				requestAnimationFrame(update);
+			} else {
+				ctx.font = '48px Arial';
+				ctx.fillStyle = 'black';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+			}
+		}
+		
+		// Check collision function
+		function checkCollision(x1, y1, w1, h1, x2, y2, w2, h2) {
+			if (x1 + w1 > x2 && x1 < x2 + w2 && y1 + h1 > y2 && y1 < y2 + h2) {
+				return true;
+			}
+			return false;
+		}
+		
+		// Keyboard input
+		const keysDown = {};
+		document.addEventListener('keydown', (e) => {
+			keysDown[e.key] = true;
+		});
+		document.addEventListener('keyup', (e) => {
+			delete keysDown[e.key];
+		});
+		
+		// Start game loop
+		update();
+	</script>
+</body>
+</html>
